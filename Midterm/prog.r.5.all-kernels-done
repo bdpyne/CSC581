@@ -1,0 +1,240 @@
+
+
+################################################################################
+#        Name: 
+# Description: 
+################################################################################
+evaluate.models <- function(trained, tested) {
+
+	# Put the variable into function scope and default to 1
+	rownum <- 1
+
+	# Keep track of the previous best
+	prev   <- 1
+
+
+	# The 2 data frames should have the same number of rows. So, use either to
+	# get the number of rows.
+	for (i in 1:nrow(trained)) {
+		if ((trained[i,]$Error >= tested[i,]$Error) &
+			(trained[i,]$Error < trained[prev,]$Error)) {
+			rownum <- i
+		}
+	}
+
+	return(rownum)
+}
+
+
+###############################################################################
+#
+###############################################################################
+runLinearKernel <- function(riders) {
+
+	# Allocate a blank data frame
+	results <- data.frame()
+
+	# Index for adding rows. Allow for the column names as the first row.
+	j            <- 1
+
+
+
+	# Only 700+ rows, so a cost of 100 is probably the highest to consider.
+	# Run as a batch: analyze in a separate function.
+	for (i in 0:2) {
+
+		cost    <- 10^i
+		model   <- svm(ridersup~., data=riders, type="C-classification", cost=cost, kernel="linear")
+		predict <- fitted(model)
+		cm      <- table(riders$ridersup, predict)
+		err     <- (cm[1, 2] + cm[2, 1] / length(predict) * 100)
+
+		results[j,1] <- cost
+		results[j,2] <- cm[1,1]
+		results[j,3] <- cm[1,2]
+		results[j,4] <- cm[2,1]
+		results[j,5] <- cm[2,2]
+		results[j,6] <- err
+
+		j <- j + 1
+	}
+
+	# Make the headers a little more meaningful
+	colnames(results) <- c("Cost","TP","FN","FP","TN","Error")
+
+	return(results)
+}
+
+
+###############################################################################
+#
+###############################################################################
+runPolynomialKernel <- function(riders) {
+
+	# Allocate a blank data frame
+	results <- data.frame()
+
+	# Index for adding rows. Allow for the column names as the first row.
+	j            <- 1
+
+
+
+	# Only 700+ rows, so a cost of 100 is probably the highest to consider.
+	# Run as a batch: analyze in a separate function.
+	for (i in 0:2) {
+
+		# Run it once with these deg and gam free variable settings.
+		cost    <- 10^i
+		deg     <- 3
+		gam     <- 0.4
+		model   <- svm(ridersup~., data=riders, type="C-classification", cost=cost, kernel="polynomial", degree=deg, gamma=gam)
+		predict <- fitted(model)
+		cm      <- table(riders$ridersup, predict)
+		err     <- (cm[1, 2] + cm[2, 1] / length(predict) * 100)
+
+		results[j,1] <- cost
+		results[j,2] <- cm[1,1]
+		results[j,3] <- cm[1,2]
+		results[j,4] <- cm[2,1]
+		results[j,5] <- cm[2,2]
+		results[j,6] <- err
+		results[j,7] <- deg
+		results[j,8] <- gam
+
+		j <- j + 1
+
+		# Run it again with these deg and gam free variable settings.
+		cost    <- 10^i
+		deg     <- 10 
+		gam     <- 0.9
+		model   <- svm(ridersup~., data=riders, type="C-classification", cost=cost, kernel="polynomial", degree=deg, gamma=gam)
+		predict <- fitted(model)
+		cm      <- table(riders$ridersup, predict)
+		err     <- (cm[1, 2] + cm[2, 1] / length(predict) * 100)
+
+		results[j,1] <- cost
+		results[j,2] <- cm[1,1]
+		results[j,3] <- cm[1,2]
+		results[j,4] <- cm[2,1]
+		results[j,5] <- cm[2,2]
+		results[j,6] <- err
+		results[j,7] <- deg
+		results[j,8] <- gam
+
+		j <- j + 1
+	}
+
+	# Make the headers a little more meaningful
+	colnames(results) <- c("Cost","TP","FN","FP","TN","Error","Degree","Gamma")
+
+	return(results)
+}
+
+###############################################################################
+#
+###############################################################################
+runRadialKernel <- function(riders) {
+
+	# Allocate a blank data frame
+	results <- data.frame()
+
+	# Index for adding rows. Allow for the column names as the first row.
+	j            <- 1
+
+
+
+	# Only 700+ rows, so a cost of 100 is probably the highest to consider.
+	# Run as a batch: analyze in a separate function.
+	for (i in 0:2) {
+
+		# Run it once with these deg and gam free variable settings.
+		cost    <- 10^i
+		deg     <- 3
+		gam     <- 0.4
+		model   <- svm(ridersup~., data=riders, type="C-classification", cost=cost, kernel="radial", degree=deg, gamma=gam)
+		predict <- fitted(model)
+		cm      <- table(riders$ridersup, predict)
+		err     <- (cm[1, 2] + cm[2, 1] / length(predict) * 100)
+
+		results[j,1] <- cost
+		results[j,2] <- cm[1,1]
+		results[j,3] <- cm[1,2]
+		results[j,4] <- cm[2,1]
+		results[j,5] <- cm[2,2]
+		results[j,6] <- err
+		results[j,7] <- deg
+		results[j,8] <- gam
+
+		j <- j + 1
+
+		# Run it again with these deg and gam free variable settings.
+		cost    <- 10^i
+		deg     <- 10 
+		gam     <- 0.9
+		model   <- svm(ridersup~., data=riders, type="C-classification", cost=cost, kernel="polynomial", degree=deg, gamma=gam)
+		predict <- fitted(model)
+		cm      <- table(riders$ridersup, predict)
+		err     <- (cm[1, 2] + cm[2, 1] / length(predict) * 100)
+
+		results[j,1] <- cost
+		results[j,2] <- cm[1,1]
+		results[j,3] <- cm[1,2]
+		results[j,4] <- cm[2,1]
+		results[j,5] <- cm[2,2]
+		results[j,6] <- err
+		results[j,7] <- deg
+		results[j,8] <- gam
+
+		j <- j + 1
+	}
+
+	# Make the headers a little more meaningful
+	colnames(results) <- c("Cost","TP","FN","FP","TN","Error","Degree","Gamma")
+
+	return(results)
+}
+
+################################################################################
+#        Name: run
+# Description: 
+################################################################################
+run <- function() {
+
+	data.file  <- "riders.csv"
+	universe   <- read.csv(data.file)
+
+    no.rows    <- nrow(universe)
+	cat("Universe size: ", no.rows, "\n")
+
+	# Create a simplistic partition. Can't just divide the
+	# data frame in half because the "yr" column has no
+	# uniqueness and causes an error.
+	p1  <- universe[which(universe$X %% 2 == 0),]
+	cat("Training partition size: ", nrow(p1), "\n")
+
+	p2  <- universe[which(universe$X %% 2 != 0),]
+	cat("Testing partition size: ", nrow(p2), "\n")
+
+
+	###############################################################################
+	# Now that the partitions are setup, time to start evaluating.
+	###############################################################################
+
+	# Linear
+	linear.trained <- runLinearKernel(p1)
+	linear.tested  <- runLinearKernel(p2)
+	linear.best    <- evaluate.models(linear.trained, linear.tested)
+	print(linear.best)
+
+	# Polynomial
+	poly.trained <- runPolynomialKernel(p1)
+	poly.tested  <- runPolynomialKernel(p2)
+	poly.best    <- evaluate.models(poly.trained, poly.tested)
+	print(poly.best)
+
+	# Radial
+	radial.trained <- runRadialKernel(p1)
+	radial.tested  <- runRadialKernel(p2)
+	radial.best    <- evaluate.models(radial.trained, radial.tested)
+	print(radial.best)
+}

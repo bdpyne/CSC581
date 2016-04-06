@@ -1,0 +1,153 @@
+source("/Users/billpyne/Documents/Courses/CSC581/Assignment2/SimpleLearner.R")
+rtn <- run.it("ds-problem-4-1.csv")
+training.set
+source("SimplerLearner.r")
+source("/Users/billpyne/Documents/Courses/CSC581/Assignment2/SimpleLearner.R")
+rtn <- run.it("ds-problem-4-1.csv")
+source("/Users/billpyne/Documents/Courses/CSC581/Assignment2/SimpleLearner.R")
+rtn <- run.it("ds-problem-4-1.csv")
+rtn
+source("/Users/billpyne/Documents/Courses/CSC581/Assignment2/SimpleLearner.R")
+rtn <- run.it("ds-problem-4-1.csv")
+rtn
+source("test.R")
+data
+df <- read.csv("trainingset.csv")
+df
+pos_tab <- df[df$y == 1]
+pos_tab <- df[df$y == 1,]
+pos_tab
+neg_tab <- df[df$y == -1,]
+neg_tab
+pos_col_means <- colMeans(pos_tab)
+pos_col_means
+neg_col_means <- colMeans(neg_tab)
+neg_col_means
+source("Simple2.R")
+neg_col_means
+d_vec <- pos_col_means - neg_col_means
+d_vec
+source("Simple2.R")
+c_vec
+source("Simple2.R")
+b
+sgn(1)
+sgn <- function(iVal) {#
+    if (iVal >= 0) {#
+        1   #
+    else#
+        -1  #
+}
+b <- sign(1)
+b
+b <- sign(5)
+b
+b <- sign(0)
+b
+b <- sign(-1)
+b
+b <- sign(-5)
+b
+sgn <- function(iVal) {#
+    if (iVal >= 0) #
+        1   #
+    else#
+        -1  #
+}
+b <- sgn(0)
+b
+b <- sgn(-1)
+b
+b <- sgn(1)
+b
+source("Simple2.R")
+b
+asdf <- sgn(0)
+asdf
+plot(pos_tab, neg_tab)
+plot(df, x1, x2)
+plot(df)
+c_pos_vec
+c_neg_vec
+source("Simple2.R")
+df
+result <- learner(df)
+result
+source("Simple2.R")
+result <- learner(df)
+source("Simple2.R")
+result <- learner(df)
+source("Simple2.R")
+result <- learner(df)
+source("Simple2.R")
+result <- learner(df)
+source("Simple2.R")
+result <- learner(df)
+model <- learner(df)
+system('clear')
+model
+source("Simple2.R")
+model <- learner(df)
+test1 <- model(4,2,c_vec,d_vec)
+c_vec
+d_vec
+source("Simple2.R")
+model <- learner(df)
+test1 <- model(4,2,c_vec,d_vec)
+source("Simple2.R")
+model <- learner(df)
+a <- sgn(-1)
+a
+a <- cbind(4,2)
+a
+res <- sgn((a - c_vec) %*% d_vec)
+a <- cbind(4,2,1)
+res <- sgn((a - c_vec) %*% d_vec)
+res
+df
+t <- df[, .(x1,x2)]
+t <- df[, (x1,x2)]
+t <- df[, 1:2]
+t
+source("Simple2.R")
+source("Simple2.R")
+pos_tab
+source("Simple2.R")
+pos_tab
+neg_tab
+model <- learner(df)
+label <- model(4,2,c_vec,d_vec)
+label
+label <- model(1,2,c_vec,d_vec)
+label
+labels <- lapply(pos_tab, model, x1=x1, x2=x2, c_vec=c_vec, d_vec=d_vec)
+labels <- lapply(pos_tab, model, c_vec=c_vec, d_vec=d_vec)
+labels <- lapply(pos_tab, model, x1=x1, x2=x2, c_vec=c_vec, d_vec=d_vec)
+labels <- lapply(pos_tab, model(x1, x2, c_vec, d_vec))
+labels <- lapply(pos_tab, model, x1=x1, x2=x2, c_vec=c_vec, d_vec=d_vec)
+labels <- lapply(df, model, x1=x1, x2=x2, c_vec=c_vec, d_vec=d_vec)
+plot(4,2)
+plot(df[,1:2])
+label <- model(2,2,c_vec,d_vec)
+label
+c_vec
+d_vec
+dummy
+dummy_x_col
+dummy_x_col <- c(5,2,3,28,4)
+dummy_x_col
+dummy_y_col <- c(2,10,-1,2,7)
+dummy_df <- data.frame(dummy_x_col, dummy_y_col)
+dummy_max <- max(dummy.df)
+dummy_max <- max(dummy_df)
+dummy_max
+source("PAlgo.R")
+r
+training.set <- read.csv("trainingset.csv");
+x <- training.set[1]$x1
+x
+x1[1]
+x <- training.set$x1[1]
+x
+training.set
+quit()

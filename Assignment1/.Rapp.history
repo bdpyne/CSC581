@@ -1,0 +1,112 @@
+q()
+getwd()
+setwd("Documents/Courses/CSC581/Assignment1")
+getwd()
+n <- ncol(Minecraft.txt)
+dt <- read.csv("Minecraft.txt")
+creeper.df <- read.csv("Minecraft.txt")
+summary(creeper.df)
+n <- ncol(creeper.df)
+label <- creeper.df[[1,n]]
+n
+label
+dt <- read.csv("Minecraft.txt")
+creeper.df <- read.csv("Minecraft.txt")
+summary(creeper.df)
+source("first-label.r")
+learner
+data(iris)
+m <- learner(iris)
+m
+objects <- subset(iris, select=-Species)
+m(objects[[1,]])
+m(objects[[100,]])
+data(creeper.df)
+source("first-label.r")
+learner
+data(Legs)
+data(creeper.df)
+data(creeper)
+source("first-label.r")
+learner
+data(Legs)
+data(creeper)
+data(creeper.df)
+exit
+quit
+getwd()
+source("first-label.r")
+learner
+source("first-label.r")
+creeper.df <- read("Minecraft.txt")
+creeper.df <- read.csv("Minecraft.txt")
+data(creeper.df)
+m <- learner(creeper.df)
+m
+objects <- subset(creeper.df,select=-Creeper)
+m(objects[[1,]])
+m(objects[[100,]])
+source("first-label.r")
+learner
+m <- learner(creeper.df)
+m
+m(object[[1,]])
+object <- subset(creeper.df,select=-Creeper)
+m(objects[[1,]])
+source("first-label.r")
+learner
+m <- learner(creeper.df)
+m
+m(objects[[1,]])
+source("first-label.r")
+m <- learner(creeper.df)
+m <- learner(creeper.df,2)
+m
+m(objects[[1,]])
+source("first-label.r")
+m <- learner(creeper.df)
+m
+m(objects[[1,]])
+biomed.df <- read.csv("biomed.csv")
+b <- learner(biomed.csv)
+b <- learner(biomed.df)
+b(objects[[1,]])
+mammals.df <- read.csv("mammals.csv")
+mammals <- learner(mammals.df)
+mammals(objects[[1,]])
+source("first-lable.r")
+source("first-label.r")
+creeper.df <- read.csv("Minecraft.txt")#
+    creeper <- learner(creeper.df)#
+    creeper(objects[[1,]])
+biomed.df <- read.csv(“biomed.csv”)#
+biomed    <- learner(biomed.df)#
+biomed(objects[[1,]])
+biomed.df <- read.csv("biomed.csv")#
+biomed    <- learner(biomed.df)#
+biomed(objects[[1,]])
+mammals.df <- read.csv("mammals.csv")#
+mammals   <- learner(mammals.df)#
+mammals(objects[[1,]])
+source("/Users/billpyne/Documents/Courses/CSC581/Assignment1/tests.r")
+cat("\014")
+learner
+creeper.df <- read.csv("minecraft.csv")#
+creeper <- learner(creeper.df)#
+creeper(objects[[1,]])
+biomed.df <- read.csv("biomed.csv")#
+biomed    <- learner(biomed.df)#
+biomed(objects[[1,]])
+mammals.df <- read.csv("mammals.csv")#
+mammals   <- learner(mammals.df)#
+mammals(objects[[1,]])
+quit()
+library(e1071)
+mammals.df <- read.csv("mammals.csv")
+model <- svm(Mammal ~ .,data=mammals.df,kernel="linear")
+mammals.df$Mammal == fitted(model)
+independent.df <- subset(mammals.df, select=-Mammal)
+predict(model, independent.df)
+data(iris)
+iris[1:5,]
+quit()

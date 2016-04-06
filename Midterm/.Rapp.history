@@ -1,0 +1,213 @@
+df <- read.csv("hour.csv")
+df
+df.day <- read.csv("day.csv")
+df.day
+summary(df)
+summary(df.hour)
+summary(df.day)
+df.hour <- read.csv("hour.csv")
+summary(df.hour)
+df <- read.csv("day_mod.csv")
+df
+df <- read.csv("day_mod.csv")
+df
+summary(df)
+plot(df)
+c(df$cnt)
+median(c(df$cnt))
+exit
+quit
+q()
+df <- read.csv("day.csv")
+df
+med <- median(df$tot)
+med <- median(df$cnt)
+med
+df <- within(df, ridersup <- cnt/med)
+df
+df <- within(df, ridersup <- if (cnt > med) 1 else 0)
+df <- within(df, ridersup <- if (cnt > med) {1} else {0})
+df <- within(df, ridersup <- if (cnt > med) 1 else 0)
+df <- within(df, ridersup <- ifelse(cnt > med, 1, 0))
+df
+write.csv(df, "day_with_ind_var.csv")
+plot(df)
+plot(df$cnt)
+plot(df$ridersup)
+df <- within(df, ridersup <- ifelse(cnt > med, POS, NEG))
+df <- within(df, ridersup <- ifelse(cnt > med, "POS", "NEG"))
+df
+write.csv(df, "day_with_ind_var.csv")
+wd()
+source("prog.r")
+run()
+library("e1071")
+run()
+library("e1071")
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+temp <- data.frame()
+temp[1, ] <- rbind("bill","pyne")
+temp[1, ] <- c("bill","pyne")
+source("prog.r")
+run()
+temp <- read.csv("training.csv")
+temp
+mymodel <- svm(ridersup~., data=temp, type="C-classification", cost=100.0, kernel="linear")
+predict <- fitted(mymodel)
+predict
+c <- 10^2
+c
+test <- (0 <= 2)
+test
+test <- (2 <= 0)
+test
+test <- (0 == 0)
+test
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+df
+riders
+temp <- read.csv("universe.csv")
+temp <- read.csv("riders.csv")
+temp
+temp[1,]
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+temp[1]$cnt
+temp
+temp[2, ]$cnt
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+source("prog.r")
+run()
+universe
+riders <- read.csv("riders.csv")
+model   <- svm(ridersup~., data=riders, type="C-classification", cost=1, kernel="polynomial", degree=3, gamma=0.4)
+predict <- fitted(model)
+cm      <- table(riders$ridersup, predict)
+cm
+model   <- svm(ridersup~., data=riders, type="C-classification", cost=1, kernel="polynomial", degree=1, gamma=0.4)
+predict <- fitted(model)
+cm      <- table(riders$ridersup, predict)
+cm
+model   <- svm(ridersup~., data=riders, type="C-classification", cost=100, kernel="polynomial", degree=10, gamma=0.4)
+predict <- fitted(model)
+cm      <- table(riders$ridersup, predict)
+cm
+plot(riders)
+histogram(riders$ridersup)
+hist(riders$ridersup)
+hist(riders$cnt)
+plot(riders$ridersup)
+riders <- lapply(riders, ifelse(riders$ridersup == "UP", 1, -1))
+ridersInt <- lapply(riders, fun(x) if (x$ridersup == "UP") x$ridersup <- 1 else x$ridersup <- -1))
+ridersInt <- lapply(riders, fun(x) { if (x$ridersup == "UP") x$ridersup <- 1 else x$ridersup <- -1) } )
+ridersInt <- lapply(riders, function(x) { if (x$ridersup == "UP") x$ridersup <- 1 else x$ridersup <- -1) } )
+ridersInt <- lapply(riders, fun(x) { if (x$ridersup == "UP") x$ridersup <- 1 else x$ridersup <- -1) } )
+ridersInt <- lapply(riders$ridersup, function(x) { if (x == "UP") x <- 1 else x <- -1) } )
+ridersInt <- lapply(riders$ridersup, function(x) { if (x == "UP") x <- 1 else x <- -1 } )
+ridersInt
+ridersInt <- lapply(riders, function(x) { if (x$ridersup == "UP") x$ridersup <- 1 else x$ridersup <- -1 } )
+ridersInt <- lapply(riders, function(x) { if (x[,17] == "UP") x[,17] <- 1 else x[,17] <- -1 } )
+ncol(riders)
+ridersInt <- lapply(riders, function(x) { if (x[,16] == "UP") x[,16] <- 1 else x[,16] <- -1 } )
+convert <- function(rdrs) {}
+convert <- function(rdrs) { for (i in 1:nrow(rdrs)) if (rdrs[i,]$ridersup == "UP") rdrs[i,]$ridersup <- 1 else rdrs[i,]$ridersup <- -1 return(rdrs)}
+convert <- function(rdrs) { for (i in 1:nrow(rdrs)) if (rdrs[i,]$ridersup == "UP") rdrs[i,]$ridersup <- 1 else rdrs[i,]$ridersup <- -1 }
+ridersInt <- convert(riders)
+ridersInt$ridersup
+ridersInt <- within(riders, ridersupint <- ifelse(ridersup == "UP") 1, -1)
+ridersInt <- within(riders, ridersupint <- ifelse(ridersup == "UP", 1, -1)
+asdfal
+riders <- rider[,-1]
+riders <- riders[,-1]
+ridersInt <- within(riders, ridersupint <- ifelse(ridersup == "UP", 1, -1))
+ridersInt$ridersupint
+plot(ridersInt$ridersupint)
+riders <- riders[,-1]
+riders <- within(riders, newridersup <- ifelse(cnt > 200, "UP", "NOTUP"))
+riders[1]
+riders[1:5,]
+plot(riders$newridersup)
+source("setup.r")
+run("universe2.csv")
+universe <- read.csv("universe2.csv")
+plot(universe$ridersup)
+plot(universe$ridersup, type="o", col="blue", ylim=c(0,4000))
+plot(universe$ridersup, type="p")
+df <- as.data.frame(unclass(table(universe$dteday,universe$ridersup)))
+plot(df)
+source("prog.r")
+analyze("riders.csv")
+library(e1071)
+source("prog.r")
+analyze("riders.csv")
+source("prog.r")
+analyze("riders.csv")
+source("prog.r")
+analyze("riders.csv")
+source("prog.r")
+analyze("riders.csv")
+source("prog.r")
+analyze("riders.csv")
+source("prog.r")
+analyze("riders.csv")

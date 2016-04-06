@@ -1,0 +1,40 @@
+df <- read.csv("hour.csv")
+df
+df.day <- read.csv("day.csv")
+df.day
+summary(df)
+summary(df.hour)
+summary(df.day)
+df.hour <- read.csv("hour.csv")
+summary(df.hour)
+df <- read.csv("day_mod.csv")
+df
+df <- read.csv("day_mod.csv")
+df
+summary(df)
+plot(df)
+c(df$cnt)
+median(c(df$cnt))
+exit
+quit
+q()
+df <- read.csv("day.csv")
+df
+med <- median(df$tot)
+med <- median(df$cnt)
+med
+df <- within(df, ridersup <- cnt/med)
+df
+df <- within(df, ridersup <- if (cnt > med) 1 else 0)
+df <- within(df, ridersup <- if (cnt > med) {1} else {0})
+df <- within(df, ridersup <- if (cnt > med) 1 else 0)
+df <- within(df, ridersup <- ifelse(cnt > med, 1, 0))
+df
+write.csv(df, "day_with_ind_var.csv")
+plot(df)
+plot(df$cnt)
+plot(df$ridersup)
+df <- within(df, ridersup <- ifelse(cnt > med, POS, NEG))
+df <- within(df, ridersup <- ifelse(cnt > med, "POS", "NEG"))
+df
+write.csv(df, "day_with_ind_var.csv")

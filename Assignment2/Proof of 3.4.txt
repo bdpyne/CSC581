@@ -1,0 +1,24 @@
+Exercise 3.4
+
+Prove that the vector w is orthogonal to the line (3.18). (Hint: Use a geometric argument.)
+
+——————————————————————————————————————————————
+
+Given: 
+  - The definition of orthogonal is given in Definition 3.9. To be orthogonal, two vectors must be 0-length and their cross product must be 0.
+  - Vector w is a normal vector.
+  - Vector x is a position vector.
+  - The normal w cross product x was shown to be 0. This is because the cosine of the angle between them is 0.
+
+Left to be shown:
+  - w cross product x equals b is also equal to 0.
+
+Strategy:
+  - w and x are non-zero length. 
+  - Show that the translation from mx + y = 0 to mx + y = b does not change the angle between them.
+
+
+Page 37 of the text states that translation does not change orientation. So, the angle must be constant. However, I’m having a hard time proving mathematically that the angle remains constant.
+
+
+
