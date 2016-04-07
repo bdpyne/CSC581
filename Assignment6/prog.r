@@ -12,7 +12,10 @@ run <- function() {
 ###############################################################################
 #
 ###############################################################################
-classify <- function(df) {
+classify <- function(df, pt.idx) {
+
+	# Choose a point from the data frame - force it to be a vector
+	z <- c(df[pt.idx,])
 
 	# Initialize just to let the interpreter know the data type
 	class <- ""
@@ -30,25 +33,49 @@ classify <- function(df) {
 
 	for (p in 1:(labels.cnt - 1)) {
 		for (q in (p + 1):labels.cnt) {
+
 			# Get the label values 
 			l1 <- labels[p]
 			l2 <- labels[q]
 
 			# Get a new frame that is the union of # the rows matching 
 			# l1 and l2
-			ds <- df[df[,ncol] == l1 | df[,ncol],]
+			ds <- df[ df[,ncol(df)] == l1 | df[,ncol(df)] == l2 ,]
 
 			###########################################################
 			# Train the data using svm() in this section
 			###########################################################
+			model <- svm(Species~., data=ds, type="C-classification", cost=1, kernel="linear")
 
-			
+			###########################################################
+			# Find out how it did.
+			###########################################################
+			predict <- fitted(model)
+
+			predict <- as.data.frame(predict)
+
+			print(predict)
+
+			predict.label <- predict[pt.idx,1]
+			cat("idx: ", pt.idx, "\n")
+			cat("run predict: ", predict[pt.idx,1])
+
+			cat("Predict label: ",predict.label, "\n")
+			myt <- tail(z, n=1)
+			cat("myt: ", myt, "\n")
+
+		    if (predict.label == myt) {
+				cnt[p] <- cnt[p] + 1
+			}
+			else {
+				cnt[q] <- cnt[q] + 1
+			}
 
 			###########################################################
 			###########################################################
-
-
 		}
+
+
 	}
 
 	# Get the maximum label count
