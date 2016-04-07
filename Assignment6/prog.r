@@ -49,15 +49,15 @@ classify <- function(df, rec) {
 	labels.cnt <- length(labels)
 
 	# Allocate a 3 column data frame to hold the totals
-	cnt <- data.frame()
-	cnt[1,1] <- 0
-	cnt[1,2] <- 0
-	cnt[1,3] <- 0
-	colnames(cnt) <- c(labels[1],labels[2],labels[3])
+#	cnt <- data.frame()
+#	cnt[1,1] <- 0
+#	cnt[1,2] <- 0
+#	cnt[1,3] <- 0
+#	colnames(cnt) <- c(labels[1],labels[2],labels[3])
 
-#	septosis.cnt   <- 0
-#	versicolor.cnt <- 0
-#	virginica.cnt  <- 0
+	setosa.cnt     <- 0
+	versicolor.cnt <- 0
+	virginica.cnt  <- 0
 
 	# Get the upper index
 	p.max <- labels.cnt - 1
@@ -115,31 +115,45 @@ classify <- function(df, rec) {
 
 				print("Debug 5")
 
-		        if (predict.label == rec.label) {
-					tot <- cnt[1,p.label]
-					tot <- tot + 1
-				    cnt[1,p.label] <- tot 
-					print(sprintf("p count is %d", cnt[1,p.label]))
-			    }
-			    else {
-					tot <- cnt[1,q.label]
-					tot <- tot + 1
-				    cnt[1,q.label] <- tot 
-					print(sprintf("q count is %d", cnt[1,q.label]))
-			    }
-				print("Debug 6")
+#		        if (predict.label == rec.label) {
+#					tot <- cnt[1,p.label]
+#					tot <- tot + 1
+#				    cnt[1,p.label] <- tot 
+#					print(sprintf("p count is %d", cnt[1,p.label]))
+#			    }
+#			    else {
+#					tot <- cnt[1,q.label]
+#					tot <- tot + 1
+#				    cnt[1,q.label] <- tot 
+#					print(sprintf("q count is %d", cnt[1,q.label]))
+#			    }
+#				print("Debug 6")
+
+				if (predict.label == rec.label) {
+					if (predict.label == "setosa") {
+						setosa.cnt <- setosa.cnt + 1
+					}
+					else if (predict.label == "versicolor") {
+						versicolor.cnt <- versicolor.cnt + 1
+                    }
+					else {
+						virginica.cnt <- virginica.cnt + 1
+					}
+				}
             }
 		}
 	}
 
 	
-	print(sprintf("%s: %d, %s: %d, %s: %d", labels[1], cnt[1,1], labels[2], cnt[1,2], labels[3], cnt[1,3]))
+	print(sprintf("%s: %d, %s: %d, %s: %d", labels[1], setosa.cnt, labels[2], versicolor.cnt, labels[3], virginica.cnt))
 
-	# Get the maximum label count
-	max.cnt <- max(cnt)
+#	# Get the maximum label count
+#	max.cnt <- max(cnt)
 
 	# Now its index
-	max.cnt.idx <- match(max.cnt, cnt)
+#	max.cnt.idx <- match(max.cnt, cnt)
+
+	max.cnt.idx <- get.greatest(setosa.cnt, versicolor.cnt, virginica.cnt)
 
 	# Now get the label it's attached to
 	class <- labels[max.cnt.idx]
@@ -147,4 +161,21 @@ classify <- function(df, rec) {
 	print(sprintf("Label found is: %s", class))
 
 	return(class)
+}
+
+get.greatest <- function(setosa, versi, virg)  {
+	gr <- setosa 
+	idx <- 1
+
+	if (versi > gr) {
+		gr <- versi
+		idx <- 2
+	}
+
+	if (virg > gr) {
+		gr <- versi
+		idx <- 3
+	}
+
+	return(idx)
 }
