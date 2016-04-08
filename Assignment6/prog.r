@@ -4,7 +4,7 @@
 run <- function(pnt) {
 
 	data(iris)
-	df    <- as.data.frame(iris)
+	df        <- as.data.frame(iris)
 	data.size <- nrow(df)
 	print(sprintf("Data set size is: %d", data.size))
 
@@ -15,9 +15,25 @@ run <- function(pnt) {
 	rec   <- as.data.frame(df[pnt,])
 
 	class <- classify(df, rec)
+
+	run.error(df)
 }
 
 
+###############################################################################
+#
+###############################################################################
+run.error <- function(ds) {
+
+    model   <- svm(Species~., data=ds, type="C-classification", cost=1, kernel="linear")
+    predict <- fitted(model)
+    cm      <- table(ds$Species, predict)
+    err     <- (cm[1, 2] + cm[2, 1] / length(predict) * 100)
+
+	print(sprintf("Error for my model"))
+    print(cm)
+    print(err)
+}
 
 ###############################################################################
 #
