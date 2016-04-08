@@ -1,11 +1,18 @@
 ###############################################################################
 #
 ###############################################################################
-run <- function() {
+run <- function(pnt) {
 
 	data(iris)
 	df    <- as.data.frame(iris)
-	rec   <- as.data.frame(df[137,])
+	data.size <- nrow(df)
+	print(sprintf("Data set size is: %d", data.size))
+
+    if ((pnt > data.size) | (pnt < 1)) {
+		stop(sprintf("Sorry, needs to stay within 1 and %d.", data.size))
+	}
+
+	rec   <- as.data.frame(df[pnt,])
 
 	class <- classify(df, rec)
 }
