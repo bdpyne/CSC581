@@ -73,12 +73,8 @@ classify <- function(df, rec) {
 
 		p.label    <- labels[p]
 
-		print(sprintf("Debug 1"))
-
 		# Get the lower index
 		q.min <- p + 1
-
-		print(sprintf("Debug 2"))
 
 		for (q in q.min:labels.cnt) {
 
@@ -93,15 +89,11 @@ classify <- function(df, rec) {
 			ds.with.index    <- data.frame(ds)
             ds.with.index$Id <- seq.int(nrow(ds.with.index))
 
-			print("Debug 3")
 
             # Get row number of the rec in the data set.
 			# If none exists, then the value is 0.
 			row.num <- get.row.num(ds.with.index, rec)
 
-			print(sprintf("Row num is: %d", row.num))
-
-			print("Debug 4")
 
 			# Is in this pair of sets
 			if (row.num > 0) {
@@ -120,7 +112,6 @@ classify <- function(df, rec) {
 			    # ******  Need to find rec in the prediction set ******
 			    predict.label <- predict[row.num,1]
 
-				print("Debug 5")
 
 #		        if (predict.label == rec.label) {
 #					tot <- cnt[1,p.label]
@@ -134,7 +125,6 @@ classify <- function(df, rec) {
 #				    cnt[1,q.label] <- tot 
 #					print(sprintf("q count is %d", cnt[1,q.label]))
 #			    }
-#				print("Debug 6")
 
 				if (predict.label == rec.label) {
 					if (predict.label == "setosa") {
@@ -185,4 +175,14 @@ get.greatest <- function(setosa, versi, virg)  {
 	}
 
 	return(idx)
+}
+
+run.builtin <- function() {
+    data( iris )
+	model <- svm( iris$Species~., iris )
+	res <- predict( model, newdata=iris )
+	cm      <- table(iris$Species, res)
+	print(cm)
+	err     <- (cm[1, 2] + cm[2, 1] / length(res) * 100)
+	print(err)
 }
