@@ -10,39 +10,39 @@ run <- function() {
 
     print("Read tennis data.") 
 
-    print("Running tests")
-    run_TESTS(tennis)
+#    print("Running tests")
+#    run_TESTS(tennis)
 
-#    tree <- run_ID3(tennis)
-#    print(tree)
+    tree <- run_ID3(tennis, tennis$PlayTennis, tennis[,1:ncol(tennis)-1])
+    print(tree)
 }
 
 #############################################################################
 # Purpose
 #############################################################################
-run_ID3 <- function(data) {
+run_ID3 <- function(data, target, attribs) {
 
     if (nrow(data) == 0)
         stop("Empty data set passed to the ID3 algorithm.")
 
+
     # Let T be a new tree
     T <- Node$new("Outlook")
 
-    # Check to see if unique values exist in the dependent column
-    is.unique <- is_unique_label(data)
 
+    # Check to see if unique values exist in the dependent column
     # If unique values do not exist, return the tree with the root node
     # containing the non-unique value
-    if (is.unique == FALSE) {
-       # Take the value from the PlayTennis column in the first row
-       T <- Node$new(data$PlayTennis[1])
+    target.unique <- unique(target)
 
+    if (length(target.unique) == 1) {
+       T <- Node$new(data$PlayTennis[1])
        return(T)
-    }
+    } 
 
 
     # Check for attributes other than the target
-    if (ncol(data) == 1) {
+    if (ncol(attribs) == 0) {
         T <- Node$new( names(which.max(table(data$PlayTennis))) )
         return(T)
     }
@@ -69,23 +69,6 @@ run_TESTS <- function(data) {
         print("Target only attribute test validated")
 }
 
-#############################################################################
-# Purpose
-#############################################################################
-is_unique_label <- function(data) {
-
-    flag <- TRUE
-
-    # Puts the number of unique values per column into a vector
-    data.unique <- rapply(data, function(x) length(unique(x)))
-
-    # If TRUE, only one label exists.
-    if (data.unique["PlayTennis"] == 1) {
-       flag <- FALSE
-    }
-
-    return(flag)
-}
 
 #############################################################################
 # Purpose
