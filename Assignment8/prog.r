@@ -35,7 +35,7 @@ run_ID3 <- function(data) {
     # containing the non-unique value
     if (is.unique == FALSE) {
        # Take the value from the PlayTennis column in the first row
-       T <- Node$new(tennis$PlayTennis[1])
+       T <- Node$new(data$PlayTennis[1])
 
        return(T)
     }
@@ -55,7 +55,14 @@ run_ID3 <- function(data) {
 # Purpose
 #############################################################################
 run_TESTS <- function(data) {
-    
+
+    # Singular target value case
+    df <- data.frame(Dummy=c(1,3), PlayTennis=c("Yes", "Yes")) 
+    res <- run_ID3(df)
+    if (res$levelName == "Yes")
+        print("Singular target value test validated")
+
+    # Target-only case    
     df  <- data.frame(PlayTennis=c("Yes","No","No"))
     res <- run_ID3(df)
     if (res$levelName == "No")
@@ -69,14 +76,11 @@ is_unique_label <- function(data) {
 
     flag <- TRUE
 
-    # Check to see if all instances in D have same class c
-    rows <- nrow(data)
- 
     # Puts the number of unique values per column into a vector
-    tennis.unique <- rapply(tennis, function(x) length(unique(x)))
+    data.unique <- rapply(data, function(x) length(unique(x)))
 
     # If TRUE, only one label exists.
-    if (rows > 1 & tennis.unique["PlayTennis"] == 1) {
+    if (data.unique["PlayTennis"] == 1) {
        flag <- FALSE
     }
 
