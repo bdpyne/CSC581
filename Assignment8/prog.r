@@ -1,27 +1,92 @@
 library(data.tree)
 
+
+#############################################################################
+# Purpose
+#############################################################################
 run <- function() {
     
     tennis <- read.csv("tennis.csv")
 
     print("Read tennis data.") 
-    print(tennis)
 
-    print("Passing it to the algorithm function.")
+    print("Running tests")
+    run_TESTS(tennis)
 
-    run_ID3(tennis)
+#    tree <- run_ID3(tennis)
+#    print(tree)
 }
 
+#############################################################################
+# Purpose
+#############################################################################
 run_ID3 <- function(data) {
 
     if (nrow(data) == 0)
         stop("Empty data set passed to the ID3 algorithm.")
 
+    # Let T be a new tree
+    T <- Node$new("Outlook")
 
-     
+    # Check to see if unique values exist in the dependent column
+    is.unique <- is_unique_label(data)
 
+    # If unique values do not exist, return the tree with the root node
+    # containing the non-unique value
+    if (is.unique == FALSE) {
+       # Take the value from the PlayTennis column in the first row
+       T <- Node$new(tennis$PlayTennis[1])
+
+       return(T)
+    }
+
+
+    # Check for attributes other than the target
+    if (ncol(data) == 1) {
+        T <- Node$new( names(which.max(table(data$PlayTennis))) )
+        return(T)
+    }
+
+    return(T)
 }
 
+
+#############################################################################
+# Purpose
+#############################################################################
+run_TESTS <- function(data) {
+    
+    df  <- data.frame(PlayTennis=c("Yes","No","No"))
+    res <- run_ID3(df)
+    if (res$levelName == "No")
+        print("Target only attribute test validated")
+}
+
+#############################################################################
+# Purpose
+#############################################################################
+is_unique_label <- function(data) {
+
+    flag <- TRUE
+
+    # Check to see if all instances in D have same class c
+    rows <- nrow(data)
+ 
+    # Puts the number of unique values per column into a vector
+    tennis.unique <- rapply(tennis, function(x) length(unique(x)))
+
+    # If TRUE, only one label exists.
+    if (rows > 1 & tennis.unique["PlayTennis"] == 1) {
+       flag <- FALSE
+    }
+
+    return(flag)
+}
+
+#############################################################################
+# Purpose
+#     Shows how my data set can be expressed using the data.tree library.
+#############################################################################
 run.tree.example <- function() {
 
     # Root node
