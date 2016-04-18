@@ -10,12 +10,65 @@ run <- function() {
 
     print("Read tennis data.") 
 
-#    print("Running tests")
-#    run_TESTS(tennis)
-
     tree <- run_ID3(tennis, tennis$PlayTennis, tennis[,1:ncol(tennis)-1])
     print(tree)
 }
+
+
+#############################################################################
+# Purpose
+#############################################################################
+calculateEntropy <- function(df) {
+
+    tot <- nrow(df)
+    n   <- nrow(df[df$PlayTennis == "No",]) / tot
+    p   <- nrow(df[df$PlayTennis == "Yes",]) / tot
+
+    entropy <- - (p * log(p)) - (n * log(n))
+    
+    return(entropy)
+}
+
+
+#############################################################################
+# Purpose
+#############################################################################
+getEntropyReducer <- function (data) {
+  
+    reducer    <- ""  
+    lowest.ent <- 1
+
+    if (nrow(data) == 0 | ncol(data) == 0)
+        stop("getEntropyReducer: Invalid input parameter 'data'")
+
+    print(sprintf("rows: %d, cols: %d", nrow(data), ncol(data)))
+
+    no.cols <- ncol(data) - 1
+
+    print(sprintf("no.cols: %d", no.cols))
+
+    for (i in 1:no.cols) {
+        
+        print(sprintf("Pass %d", i))
+
+        # Get unique labels
+        labels <- unique(data[,i])
+
+        print(labels)
+
+        # Now get the subset of data with those labels
+        for (j in 1:length(labels)) {
+            print(sprintf("Label: %s", labels[j]))
+            label.data <- data[data[,i] == labels[j],]
+            print(label.data)
+            entropy <- calculateEntropy(label.data)
+            print(sprintf("Label %s entropy: %f", labels[j], entropy))
+        }
+    } 
+
+    return(reducer) 
+}
+
 
 #############################################################################
 # Purpose
@@ -50,24 +103,6 @@ run_ID3 <- function(data, target, attribs) {
     return(T)
 }
 
-
-#############################################################################
-# Purpose
-#############################################################################
-run_TESTS <- function(data) {
-
-    # Singular target value case
-    df <- data.frame(Dummy=c(1,3), PlayTennis=c("Yes", "Yes")) 
-    res <- run_ID3(df)
-    if (res$levelName == "Yes")
-        print("Singular target value test validated")
-
-    # Target-only case    
-    df  <- data.frame(PlayTennis=c("Yes","No","No"))
-    res <- run_ID3(df)
-    if (res$levelName == "No")
-        print("Target only attribute test validated")
-}
 
 
 #############################################################################
