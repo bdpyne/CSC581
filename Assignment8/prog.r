@@ -33,7 +33,7 @@ calculateEntropy <- function(df) {
 #############################################################################
 # Purpose
 #############################################################################
-getEntropyDF <- function (data) {
+getEntropyReducer <- function (data) {
   
     reducer     <- ""
     tot         <- 0
@@ -77,9 +77,13 @@ getEntropyDF <- function (data) {
         tot        <- 0
     } 
 
+    # Column names aren't strictly necessary but they help
     colnames(avgs) <- c("Name","Average")
 
-    return(avgs) 
+    # Get the attribute name
+    reducer <- temp[temp[,2] == min(temp[,2]),]$Name
+
+    return(reducer) 
 }
 
 
@@ -113,9 +117,22 @@ run_ID3 <- function(data, target, attribs) {
         return(T)
     }
 
-    entropy.df <- getEntropyDF(data)
+    # Find the average entropy for each attribute and print the results
+    entropy.reducer.attrib <- getEntropyReducer(data)
+    print(entropy.reducer.attrib)
 
-    print(entropy.df)
+    T <- Node$new(entropy.reducer.attrib)
+
+    for (i in 1:nrow(data)) {
+        val    <- data[i, entropy.reducer.attrib]
+        branch <- T$AddChild(val)
+        subs   <- data[data[,entropy.reducer.attrib] == val,]
+        
+        if (nrow(subs) == 0) {
+
+        }
+    }
+
 
     return(T)
 }
