@@ -33,40 +33,53 @@ calculateEntropy <- function(df) {
 #############################################################################
 # Purpose
 #############################################################################
-getEntropyReducer <- function (data) {
+getEntropyDF <- function (data) {
   
-    reducer    <- ""  
-    lowest.ent <- 1
+    reducer     <- ""
+    tot         <- 0
+    avg         <- 0
+    avgs        <- data.frame() 
 
     if (nrow(data) == 0 | ncol(data) == 0)
         stop("getEntropyReducer: Invalid input parameter 'data'")
 
-    print(sprintf("rows: %d, cols: %d", nrow(data), ncol(data)))
 
     no.cols <- ncol(data) - 1
 
-    print(sprintf("no.cols: %d", no.cols))
-
     for (i in 1:no.cols) {
         
-        print(sprintf("Pass %d", i))
-
         # Get unique labels
-        labels <- unique(data[,i])
-
-        print(labels)
+        labels    <- unique(data[,i])
+        no.labels <- length(labels)
 
         # Now get the subset of data with those labels
         for (j in 1:length(labels)) {
-            print(sprintf("Label: %s", labels[j]))
             label.data <- data[data[,i] == labels[j],]
-            print(label.data)
             entropy <- calculateEntropy(label.data)
+            
+            # When entropy is 0, a NaN is returned. Need it to be a 0.
+            if (is.nan(entropy))
+                entropy <- 0
+
             print(sprintf("Label %s entropy: %f", labels[j], entropy))
+
+	    
+            tot <- tot + entropy
         }
+
+        avg <- tot / no.labels 
+
+        # Add to DF the column name and avg entropy
+        avgs[i, 1] <- colnames(data)[i]
+        avgs[i, 2] <- avg
+
+        # Important to reset between runs
+        tot        <- 0
     } 
 
-    return(reducer) 
+    colnames(avgs) <- c("Name","Average")
+
+    return(avgs) 
 }
 
 
@@ -99,6 +112,10 @@ run_ID3 <- function(data, target, attribs) {
         T <- Node$new( names(which.max(table(data$PlayTennis))) )
         return(T)
     }
+
+    entropy.df <- getEntropyDF(data)
+
+    print(entropy.df)
 
     return(T)
 }
