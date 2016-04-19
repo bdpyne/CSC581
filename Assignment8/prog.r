@@ -10,7 +10,7 @@ run <- function() {
 
     print("Read tennis data.") 
 
-    tree <- run_ID3(tennis, tennis$PlayTennis, tennis[,1:ncol(tennis)-1])
+    tree <- run_ID3(tennis)
     print(tree)
 }
 
@@ -43,7 +43,6 @@ getEntropyReducer <- function (data) {
     if (nrow(data) == 0 | ncol(data) == 0)
         stop("getEntropyReducer: Invalid input parameter 'data'")
 
-
     no.cols <- ncol(data) - 1
 
     for (i in 1:no.cols) {
@@ -55,13 +54,13 @@ getEntropyReducer <- function (data) {
         # Now get the subset of data with those labels
         for (j in 1:length(labels)) {
             label.data <- data[data[,i] == labels[j],]
-            entropy <- calculateEntropy(label.data)
+            entropy    <- calculateEntropy(label.data)
             
             # When entropy is 0, a NaN is returned. Need it to be a 0.
             if (is.nan(entropy))
                 entropy <- 0
 
-            print(sprintf("Label %s entropy: %f", labels[j], entropy))
+#            print(sprintf("Label %s entropy: %f", labels[j], entropy))
 
 	    
             tot <- tot + entropy
@@ -81,7 +80,7 @@ getEntropyReducer <- function (data) {
     colnames(avgs) <- c("Name","Average")
 
     # Get the attribute name
-    reducer <- temp[temp[,2] == min(temp[,2]),]$Name
+    reducer <- avgs[avgs[,2] == min(avgs[,2]),]$Name
 
     return(reducer) 
 }
@@ -90,19 +89,16 @@ getEntropyReducer <- function (data) {
 #############################################################################
 # Purpose
 #############################################################################
-run_ID3 <- function(data, target, attribs) {
+run_ID3 <- function(data) {
 
-    if (nrow(data) == 0)
+    if (!is.null(data) | nrow(data) == 0)
         stop("Empty data set passed to the ID3 algorithm.")
-
-
-    # Let T be a new tree
-    T <- Node$new("Outlook")
 
 
     # Check to see if unique values exist in the dependent column
     # If unique values do not exist, return the tree with the root node
     # containing the non-unique value
+    target        <- data[,ncol(data)]
     target.unique <- unique(target)
 
     if (length(target.unique) == 1) {
@@ -110,26 +106,37 @@ run_ID3 <- function(data, target, attribs) {
        return(T)
     } 
 
+    no.attribs <- ncol(data) - 1
 
     # Check for attributes other than the target
-    if (ncol(attribs) == 0) {
+    if (no.attribs == 0) {
         T <- Node$new( names(which.max(table(data$PlayTennis))) )
         return(T)
     }
 
-    # Find the average entropy for each attribute and print the results
-    entropy.reducer.attrib <- getEntropyReducer(data)
-    print(entropy.reducer.attrib)
 
-    T <- Node$new(entropy.reducer.attrib)
+    # Find the average entropy for each attribute and print the results
+    reducer <- getEntropyReducer(data)
+    print(sprintf("Reducer is %s", reducer))
+
+    T <- Node$new(reducer)
 
     for (i in 1:nrow(data)) {
-        val    <- data[i, entropy.reducer.attrib]
+        val    <- data[i, reducer]
         branch <- T$AddChild(val)
-        subs   <- data[data[,entropy.reducer.attrib] == val,]
+
+        # Get a subset of data where values in the column = val
+        subs   <- data[data[,reducer] == val,]
+       
         
         if (nrow(subs) == 0) {
-
+            label <- labelWithMaxOccurrences(data$PlayTennis)
+            T$AddChild(label)
+        }
+        else {
+            col  <- which(colnames(data) == reducer)
+            temp <- run_ID3(data[,-col])
+            T$AddChild(temp) 
         }
     }
 
@@ -137,6 +144,14 @@ run_ID3 <- function(data, target, attribs) {
     return(T)
 }
 
+
+#############################################################################
+# Purpose
+#############################################################################
+labelWitMaxOccurrences <- function(data) {
+    tab <- table(data)
+    return(ifelse(tab["Yes"] < tab["No"], "No", "Yes"))
+}
 
 
 #############################################################################
