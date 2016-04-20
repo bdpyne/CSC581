@@ -36,65 +36,56 @@ run_ID3 <- function(data, target, attributes) {
 
 
     if (length(target.unique) == 1) {
-       T <- Node$new(target.vals[1])
+       Root <- Node$new(target.vals[1])
 #print("unique = 1")
-       return(T)
+       return(Root)
     } 
 
 
     # Check for attributes other than the target
 
     if (length(attributes) == 0) {
-        T <- Node$new( labelWitMaxOccurrences(target.vals) )
+        Root <- Node$new( labelWitMaxOccurrences(target.vals) )
 print("attribs = 0")
-        return(T)
+        return(Root)
     }
 
 
     # Find the average entropy for each attribute and print the results
     reducer <- getEntropyReducer(data)
 
-    print(sprintf("Reducer is %s", reducer))
-
-    T <- Node$new(reducer)
+    Root <- Node$new(reducer)
 
     # Get the unique values in the "reducer" column
-    reducer.unique.vals <- unique(data[,reducer]) 
+#    reducer.vals <- unique(data[,reducer]) 
+    reducer.vals <- data[,reducer]
 
-    for (i in 1:length(reducer.unique.vals)) {
+#print(length(reducer.vals))
 
-        val    <- reducer.unique.vals[i]
+    for (i in 1:length(reducer.vals)) {
 
-        branch <- T$AddChild(val)
+        val    <- reducer.vals[i]
+
+#print(sprintf("val is %s", val))
+        branch <- Root$AddChild(val)
 
         # Get a subset of data where values in the column = val
         subs   <- data[data[,reducer] == val,]
+#print(subs)
 
         if (nrow(subs) == 0) {
             label <- labelWithMaxOccurrences(target.vals)
             branch$AddChild(label)
         }
         else {
-            col        <- which(colnames(data) == reducer)
             attributes <- attributes[attributes != reducer]
-            temp       <- run_ID3(subs, target, attributes)
-            branch$AddChild( temp$levelName ) 
-
-            # This bit of magic is here because a root
-            # Node cannot be added to a child Node.
-            # The lack of children will be taken as an
-            # indicator that it is a root.
-#            if (is.null(temp$children) == TRUE) {
-#                T$AddChild(temp$levelName)
-#            }
-#            else {
-#                T$AddChild( temp$levelName ) 
-#            }
+            branch2    <- run_ID3(subs, target, attributes)
+            branch$AddChildNode(branch2)
         }
     }
 
 
-    return(T)
+    return(Root)
 }
 
 
@@ -108,8 +99,8 @@ getEntropyReducer <- function (data) {
     avg         <- 0
     avgs        <- data.frame() 
 
-    if (nrow(data) == 0 | ncol(data) == 0)
-        stop("getEntropyReducer: Invalid input parameter 'data'")
+#    if (nrow(data) == 0 | ncol(data) == 0)
+#        stop("getEntropyReducer: Invalid input parameter 'data'")
 
     no.cols <- ncol(data) - 1
 
