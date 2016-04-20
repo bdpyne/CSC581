@@ -65,21 +65,20 @@ print("attribs = 0")
 
         val    <- reducer.unique.vals[i]
 
-        T$AddChild(val)
-print(T$parent)
+        branch <- T$AddChild(val)
 
         # Get a subset of data where values in the column = val
         subs   <- data[data[,reducer] == val,]
 
         if (nrow(subs) == 0) {
             label <- labelWithMaxOccurrences(target.vals)
-            T$AddChild(label)
+            branch$AddChild(label)
         }
         else {
             col        <- which(colnames(data) == reducer)
             attributes <- attributes[attributes != reducer]
             temp       <- run_ID3(subs, target, attributes)
-            T$AddChild( temp$levelName ) 
+            branch$AddChild( temp$levelName ) 
 
             # This bit of magic is here because a root
             # Node cannot be added to a child Node.
