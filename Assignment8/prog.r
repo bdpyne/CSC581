@@ -15,8 +15,7 @@ run <- function() {
     columns    <- colnames(tennis)
     attributes <- columns[1:attrib.cnt]
     target     <- columns[target.idx]
-
-    tree <- run_ID3(tennis, target, attributes)
+    tree       <- run_ID3(tennis, target, attributes)
 
     print(tree)
 }
@@ -26,6 +25,7 @@ run <- function() {
 # Purpose
 #############################################################################
 run_ID3 <- function(data, target, attributes) {
+
 
     # Check to see if unique values exist in the dependent column
     # If unique values do not exist, return the tree with the root node
@@ -37,16 +37,16 @@ run_ID3 <- function(data, target, attributes) {
 
     if (length(target.unique) == 1) {
        T <- Node$new(target.vals[1])
+#print("unique = 1")
        return(T)
     } 
 
 
     # Check for attributes other than the target
 
-    no.attribs <- ifelse(is.null(ncol(data)), 0, ncol(data))
-
-    if (no.attribs == 0) {
+    if (length(attributes) == 0) {
         T <- Node$new( labelWitMaxOccurrences(target.vals) )
+print("attribs = 0")
         return(T)
     }
 
@@ -58,24 +58,39 @@ run_ID3 <- function(data, target, attributes) {
 
     T <- Node$new(reducer)
 
-    for (i in 1:nrow(data)) {
-        val    <- data[i, reducer]
+    # Get the unique values in the "reducer" column
+    reducer.unique.vals <- unique(data[,reducer]) 
+
+    for (i in 1:length(reducer.unique.vals)) {
+
+        val    <- reducer.unique.vals[i]
+
         T$AddChild(val)
+print(T$parent)
 
         # Get a subset of data where values in the column = val
         subs   <- data[data[,reducer] == val,]
 
-        row.cnt <- nrow(subs)
-
-        if (row.cnt == 0) {
+        if (nrow(subs) == 0) {
             label <- labelWithMaxOccurrences(target.vals)
             T$AddChild(label)
         }
         else {
-            col  <- which(colnames(data) == reducer)
+            col        <- which(colnames(data) == reducer)
             attributes <- attributes[attributes != reducer]
-            temp <- run_ID3(subs, target, attributes)
-            T$AddChild(temp$levelName) 
+            temp       <- run_ID3(subs, target, attributes)
+            T$AddChild( temp$levelName ) 
+
+            # This bit of magic is here because a root
+            # Node cannot be added to a child Node.
+            # The lack of children will be taken as an
+            # indicator that it is a root.
+#            if (is.null(temp$children) == TRUE) {
+#                T$AddChild(temp$levelName)
+#            }
+#            else {
+#                T$AddChild( temp$levelName ) 
+#            }
         }
     }
 
