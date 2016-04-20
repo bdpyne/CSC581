@@ -10,7 +10,14 @@ run <- function() {
 
     print("Read tennis data.") 
 
-    tree <- run_ID3(tennis)
+    attrib.cnt <- ncol(tennis) - 1
+    target.idx <- attrib.cnt + 1
+    columns    <- colnames(tennis)
+    attributes <- columns[1:attrib.cnt]
+    target     <- columns[target.idx]
+
+    tree <- run_ID3(tennis, target, attributes)
+
     print(tree)
 }
 
@@ -18,15 +25,62 @@ run <- function() {
 #############################################################################
 # Purpose
 #############################################################################
-calculateEntropy <- function(df) {
+run_ID3 <- function(data, target, attributes) {
 
-    tot <- nrow(df)
-    n   <- nrow(df[df$PlayTennis == "No",]) / tot
-    p   <- nrow(df[df$PlayTennis == "Yes",]) / tot
+    # Check to see if unique values exist in the dependent column
+    # If unique values do not exist, return the tree with the root node
+    # containing the non-unique value
 
-    entropy <- - (p * log(p)) - (n * log(n))
-    
-    return(entropy)
+    target.vals   <- data[,target]
+    target.unique <- unique(target.vals)
+
+
+    if (length(target.unique) == 1) {
+       T <- Node$new(target.vals[1])
+       return(T)
+    } 
+
+
+    # Check for attributes other than the target
+
+    no.attribs <- ifelse(is.null(ncol(data)), 0, ncol(data))
+
+    if (no.attribs == 0) {
+        T <- Node$new( labelWitMaxOccurrences(target.vals) )
+        return(T)
+    }
+
+
+    # Find the average entropy for each attribute and print the results
+    reducer <- getEntropyReducer(data)
+
+    print(sprintf("Reducer is %s", reducer))
+
+    T <- Node$new(reducer)
+
+    for (i in 1:nrow(data)) {
+        val    <- data[i, reducer]
+        T$AddChild(val)
+
+        # Get a subset of data where values in the column = val
+        subs   <- data[data[,reducer] == val,]
+
+        row.cnt <- nrow(subs)
+
+        if (row.cnt == 0) {
+            label <- labelWithMaxOccurrences(target.vals)
+            T$AddChild(label)
+        }
+        else {
+            col  <- which(colnames(data) == reducer)
+            attributes <- attributes[attributes != reducer]
+            temp <- run_ID3(subs, target, attributes)
+            T$AddChild(temp$levelName) 
+        }
+    }
+
+
+    return(T)
 }
 
 
@@ -85,72 +139,27 @@ getEntropyReducer <- function (data) {
     return(reducer) 
 }
 
-
 #############################################################################
 # Purpose
 #############################################################################
-run_ID3 <- function(data) {
+calculateEntropy <- function(df) {
 
-    if (!is.null(data) | nrow(data) == 0)
-        stop("Empty data set passed to the ID3 algorithm.")
+    tot <- nrow(df)
+    n   <- nrow(df[df$PlayTennis == "No",]) / tot
+    p   <- nrow(df[df$PlayTennis == "Yes",]) / tot
 
-
-    # Check to see if unique values exist in the dependent column
-    # If unique values do not exist, return the tree with the root node
-    # containing the non-unique value
-    target        <- data[,ncol(data)]
-    target.unique <- unique(target)
-
-    if (length(target.unique) == 1) {
-       T <- Node$new(data$PlayTennis[1])
-       return(T)
-    } 
-
-    no.attribs <- ncol(data) - 1
-
-    # Check for attributes other than the target
-    if (no.attribs == 0) {
-        T <- Node$new( names(which.max(table(data$PlayTennis))) )
-        return(T)
-    }
-
-
-    # Find the average entropy for each attribute and print the results
-    reducer <- getEntropyReducer(data)
-    print(sprintf("Reducer is %s", reducer))
-
-    T <- Node$new(reducer)
-
-    for (i in 1:nrow(data)) {
-        val    <- data[i, reducer]
-        branch <- T$AddChild(val)
-
-        # Get a subset of data where values in the column = val
-        subs   <- data[data[,reducer] == val,]
-       
-        
-        if (nrow(subs) == 0) {
-            label <- labelWithMaxOccurrences(data$PlayTennis)
-            T$AddChild(label)
-        }
-        else {
-            col  <- which(colnames(data) == reducer)
-            temp <- run_ID3(data[,-col])
-            T$AddChild(temp) 
-        }
-    }
-
-
-    return(T)
+    entropy <- - (p * log(p)) - (n * log(n))
+    
+    return(entropy)
 }
 
 
+
 #############################################################################
 # Purpose
 #############################################################################
-labelWitMaxOccurrences <- function(data) {
-    tab <- table(data)
-    return(ifelse(tab["Yes"] < tab["No"], "No", "Yes"))
+labelWitMaxOccurrences <- function(target) {
+    return(names(which.max(table(target))))
 }
 
 
