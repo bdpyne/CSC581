@@ -2,7 +2,7 @@ library(data.tree)
 
 
 #############################################################################
-# Purpose
+# Purpose: Entry point for the program.
 #############################################################################
 run <- function() {
     
@@ -22,7 +22,8 @@ run <- function() {
 
 
 #############################################################################
-# Purpose
+# Purpose: Using the inputs, it develops a decision tree with the leaf
+#          nodes being the target labels.
 #############################################################################
 run_ID3 <- function(data, target, attributes) {
 
@@ -37,7 +38,6 @@ run_ID3 <- function(data, target, attributes) {
 
     if (length(target.unique) == 1) {
        Root <- Node$new(target.vals[1])
-#print("unique = 1")
        return(Root)
     } 
 
@@ -46,7 +46,6 @@ run_ID3 <- function(data, target, attributes) {
 
     if (length(attributes) == 0) {
         Root <- Node$new( labelWitMaxOccurrences(target.vals) )
-print("attribs = 0")
         return(Root)
     }
 
@@ -56,31 +55,27 @@ print("attribs = 0")
 
     Root <- Node$new(reducer)
 
-    # Get the unique values in the "reducer" column
-#    reducer.vals <- unique(data[,reducer]) 
+    # Get the values in the "reducer" column
     reducer.vals <- data[,reducer]
 
-#print(length(reducer.vals))
 
     for (i in 1:length(reducer.vals)) {
 
         val    <- reducer.vals[i]
 
-#print(sprintf("val is %s", val))
         branch <- Root$AddChild(val)
 
         # Get a subset of data where values in the column = val
-        subs   <- data[data[,reducer] == val,]
-#print(subs)
+        subs   <- data[reducer.vals == val,]
 
         if (nrow(subs) == 0) {
             label <- labelWithMaxOccurrences(target.vals)
             branch$AddChild(label)
         }
         else {
-            attributes <- attributes[attributes != reducer]
-            branch2    <- run_ID3(subs, target, attributes)
-            branch$AddChildNode(branch2)
+            attributes       <- attributes[attributes != reducer]
+            returned.tree    <- run_ID3(subs, target, attributes)
+            branch$AddChildNode(returned.tree)
         }
     }
 
@@ -90,7 +85,8 @@ print("attribs = 0")
 
 
 #############################################################################
-# Purpose
+# Purpose: Returns the attribute with the lowest entropy based on the data
+#          input.
 #############################################################################
 getEntropyReducer <- function (data) {
   
@@ -119,8 +115,6 @@ getEntropyReducer <- function (data) {
             if (is.nan(entropy))
                 entropy <- 0
 
-#            print(sprintf("Label %s entropy: %f", labels[j], entropy))
-
 	    
             tot <- tot + entropy
         }
@@ -145,7 +139,7 @@ getEntropyReducer <- function (data) {
 }
 
 #############################################################################
-# Purpose
+# Purpose: Calculates entropy. 
 #############################################################################
 calculateEntropy <- function(df) {
 
@@ -161,7 +155,8 @@ calculateEntropy <- function(df) {
 
 
 #############################################################################
-# Purpose
+# Purpose: Returns the label with the highest occurrences from the target
+#          attribute.
 #############################################################################
 labelWitMaxOccurrences <- function(target) {
     return(names(which.max(table(target))))
@@ -169,8 +164,10 @@ labelWitMaxOccurrences <- function(target) {
 
 
 #############################################################################
-# Purpose
-#     Shows how my data set can be expressed using the data.tree library.
+# Purpose: Shows how my data set can be expressed using the data.tree 
+#          library.
+#
+# THIS IS NOT IMPORTANT FOR THE ID3 ALGORITHM.
 #############################################################################
 run.tree.example <- function() {
 
