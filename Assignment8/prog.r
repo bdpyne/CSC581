@@ -10,14 +10,51 @@ run <- function() {
 
     print("Read tennis data.") 
 
+
+    # This information stays consistent between the run of training and test.
     attrib.cnt <- ncol(tennis) - 1
     target.idx <- attrib.cnt + 1
     columns    <- colnames(tennis)
     attributes <- columns[1:attrib.cnt]
     target     <- columns[target.idx]
-    tree       <- run_ID3(tennis, target, attributes)
 
+
+    # For dividing the tennis data set into training and testing.
+#    set.seed(123)
+    training.size <- floor(nrow(tennis) * 0.75)
+    training.ind  <- sample(seq_len(nrow(tennis)), size=training.size)
+    
+
+    # Grab a training set from tennis. 
+    training <- tennis[training.ind, ]
+
+    # Get the decision tree from the training set.
+    tree     <- run_ID3(training, target, attributes)
+
+    # Now show the tree.
+    print("*********** TRAINING **************")
     print(tree)
+    print("*********** TRAINING **************")
+
+    # Now get the testing set from what remains after training.
+    testing  <- tennis[-training.ind, ]
+
+    # Get the decision tree from the testing set.
+    tree     <- run_ID3(testing, target, attributes)
+
+    # Now show the tree.
+    print("*********** TESTING **************")
+    print(tree)
+    print("*********** TESTING **************")
+
+
+    # Get the decision tree from the testing set.
+    tree     <- run_ID3(tennis, target, attributes)
+
+    # Now show the tree.
+    print("*********** WHOLE SET **************")
+    print(tree)
+    print("*********** WHOLE SET **************")
 }
 
 
@@ -134,6 +171,10 @@ getEntropyReducer <- function (data) {
 
     # Get the attribute name
     reducer <- avgs[avgs[,2] == min(avgs[,2]),]$Name
+
+    # In the event of a tie, just pick the first.
+    if (length(reducer) > 1)
+        reducer <- reducer[1] 
 
     return(reducer) 
 }
