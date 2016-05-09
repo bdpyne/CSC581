@@ -10,8 +10,53 @@ run <- function() {
 
 #    run.CrudeAnalysis(voting.df)
 #    run.PredictPredictors(voting.df)
+#    run.Explore.RandomForest(voting.df)
+    run.CV.RandomForest(voting.df)
+}
 
-    run.Explore.RandomForest(voting.df)
+
+################################################################################
+# Cross-validate the RandomForest algorithm. 
+################################################################################
+run.CV.RandomForest <- function(df) {
+
+    print("Running cross-validation on Random Forest")
+
+    df.random <- df[sample(nrow(df), nrow(df), replace=TRUE), ,]
+    print(sprintf("Random df has %d rows", nrow(df.random)))
+
+    ###########################################################################
+    # Develop training set, run rf, and report the ce
+    ###########################################################################
+    train.size  <- ceiling(nrow(df.random) * 0.5)
+    df.train    <- df.random[1:train.size, ,]
+    print(sprintf("Training df has %d rows", nrow(df.train)))
+
+    no.cols <- ncol(df.train)
+    print(sprintf("Data set has %d columns", no.cols))
+
+    last.attrib <- no.cols - 1
+
+    rf <- randomForest(df.train[, 2:last.attrib], df.train[, no.cols], prox=TRUE)
+    ce <- calc.ClassError.RandomForest(rf)
+    print(sprintf("The classification error for the training set is %f", ce))
+
+    ###########################################################################
+    # Develop test sets, run rf, and report the ce
+    ###########################################################################
+    test.idx.start <- train.size + 1
+    df.test <- df.random[test.idx.start:nrow(df.random), ,]
+    print(sprintf("Test df has %d rows", nrow(df.test)))
+
+    # Split the remaining list into 2 lists with a random selection
+    df.test.list <- split(df.test, sample(1:2, nrow(df.test), replace=T))
+
+    for (i in 1:length(df.test.list)) {
+        local.df <- df.test.list[[i]]
+        rf <- randomForest(local.df[, 2:last.attrib], local.df[, no.cols], prox=TRUE)
+        ce <- calc.ClassError.RandomForest(rf)
+        print(sprintf("The classification error for the test set %d is %f", i, ce))
+    }
 }
 
 
@@ -36,26 +81,6 @@ run.Explore.RandomForest  <- function(df) {
 }
 
 
-
-
-################################################################################
-# Cross-validate the RandomForest algorithm. 
-################################################################################
-run.CV.RandomForest <- function(df) {
-
-    df.train <- df[sample(nrow(df), 0.50 * nrow(df)), ,]
-    print(sprintf("Training has %d rows", nrow(df.train)))
-
-    no.cols <- ncol(df.train)
-    print(sprintf("Data set has %d columns", no.cols))
-
-    last.attrib <- no.cols - 1
-
-    rf <- randomForest(df.train[, 2:last.attrib], df.train[, no.cols], prox=TRUE)
-    print(rf)
-
-    rf
-}
 
 ################################################################################
 # Cycle through the attributes, get voting totals, and list the totals in order
@@ -122,8 +147,8 @@ calc.ClassError.RandomForest <- function(rf) {
         }
     }
 
-    print(sprintf("Total error: %d", tot.err))
-    print(sprintf("Total      : %d", tot))
+#    print(sprintf("Total error: %d", tot.err))
+#    print(sprintf("Total      : %d", tot))
 
     if (tot < 1)
         stop("Cannot have a zero total for instances.") 
