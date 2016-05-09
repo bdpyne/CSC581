@@ -29,38 +29,13 @@ run.Explore.RandomForest  <- function(df) {
     last.attrib <- no.cols - 1
 
     rf <- randomForest(df.sample[, 2:last.attrib], df.sample[, no.cols], prox=TRUE)
-    print(rf)
+
+    ce <- calc.ClassError.RandomForest(rf)
+
+    print(sprintf("The classification error is %f", ce))
 }
 
 
-################################################################################
-# Get the classification error as a decimal from a confusion matrix from a
-# Random Forest.
-################################################################################
-calc.ClassError.RandomTree <- function(rf) {
-
-    cm      <- rf["confusion"]
-
-    tot     <- 0
-    tot.err <- 0
-
-
-    for (i in 1:2) {
-        for (j in 1:2) {
-            tot <- tot + cm$confusion[i,j]
-
-            if (i != j) 
-                tot.err <- cm$confusion[i,j]
-        }
-    }
-
-
-    if (tot < 1)
-        stop("Cannot have a zero total for instances.") 
-
-
-    tot.err / tot
-}
 
 
 ################################################################################
@@ -123,3 +98,35 @@ run.CrudeAnalysis  <- function(df) {
 }
 
 
+################################################################################
+# Get the classification error as a decimal from a confusion matrix from a
+# Random Forest.
+################################################################################
+calc.ClassError.RandomForest <- function(rf) {
+
+    cm      <- rf["confusion"]
+
+    print("Confusion Matrix")
+    print(cm$confusion)
+
+    tot     <- 0
+    tot.err <- 0
+
+
+    for (i in 1:2) {
+        for (j in 1:2) {
+            tot <- tot + cm$confusion[i,j]
+
+            if (i != j) 
+                tot.err <- tot.err + cm$confusion[i,j]
+        }
+    }
+
+    print(sprintf("Total error: %d", tot.err))
+    print(sprintf("Total      : %d", tot))
+
+    if (tot < 1)
+        stop("Cannot have a zero total for instances.") 
+
+    tot.err / tot
+}
