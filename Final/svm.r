@@ -4,20 +4,16 @@ run <- function() {
     
     voting.df <- read.csv("dataset.csv")
 
-    run.Kernel.Compare(voting.df)
-#    run.Linear(voting.df)
-#    run.Radial(voting.df)
-#    run.CrudeAnalysis(voting.df)
-#    run.PredictPredictors(voting.df)
-#    run.Explore.RandomForest(voting.df)
-#    run.CV.RandomForest(voting.df)
+    run.Kernels(voting.df)
 }
 
 
 ################################################################################
 #
 ################################################################################
-run.Kernel.Compare <- function(df) {
+run.Kernels <- function(df) {
+
+    print.Section("RUNNING KERNELS - linear and radial")
 
     # Take a 10% sample to do a basic analysis in order to compare kernel
     # performance.
@@ -34,6 +30,7 @@ run.Kernel.Compare <- function(df) {
     train.size  <- ceiling(nrow(df.random) * 0.5)
 
     df.train    <- df.random[1:train.size, ,]
+
     print(sprintf("Training df has %d rows", nrow(df.train)))
 
     no.cols <- ncol(df.train)
@@ -45,41 +42,56 @@ run.Kernel.Compare <- function(df) {
     # Develop test sets, run rf, and report the ce
     ###########################################################################
     test.idx.start <- train.size + 1
-    df.test <- df.random[test.idx.start:nrow(df.random), ,]
-    print(sprintf("Test df has %d rows", nrow(df.test)))
+    test.idx.end   <- nrow(df.random)
+
+    print(sprintf("test idx start: %d", test.idx.start))
+    print(sprintf("test idx   end: %d", test.idx.end))
+
+    df.test <- df.random[test.idx.start:test.idx.end, ,]
+
+    # Get the records from df.random that are not in df.train
+    df.test.size <- nrow(df.test)
+
+    print(sprintf("Test df has %d rows", df.test.size))
 
     # Split the remaining list into 2 lists with a random selection
-    df.test.list <- split(df.test, sample(1:2, nrow(df.test), replace=T))
+    df.test.list <- split(df.test, sample(1:2, df.test.size, replace=TRUE))
 
-
+    print.Section("LINEAR")
     linear.class.err <- run.Linear(df.sample)
+
+    print.Section("RADIAL")
     radial.class.err <- run.Radial(df.sample)
 
     if (linear.class.err < radial.class.err) {
-        print(sprintf("Linear wins with %f", linear.class.err))
+        print.Section(sprintf("Linear wins with %f", linear.class.err))
 
         ########################################################################
         # Now do the cross-validation
         ########################################################################
 
-        run.Linear(train)
+        print.Section("TRAINING SET")
+        run.Linear(df.train)
 
         for (i in 1:length(df.test.list)) {
+            print.Section(sprintf("TEST SET %d", i))
             local.df  <- df.test.list[[i]]
             class.err <- run.Linear(local.df)
             print(sprintf("The classification error for the test set %d is %f", i, class.err))
         }
     } 
     else {
-        print(sprintf("Radial wins with %f", radial.class.err))
+        print.Section(sprintf("Radial wins with %f", radial.class.err))
 
         ########################################################################
         # Now do the cross-validation
         ########################################################################
 
-        run.Radial(train)
+        print.Section("TRAINING SET")
+        run.Radial(df.train)
 
         for (i in 1:length(df.test.list)) {
+            print.Section(sprintf("TEST SET %d", i))
             local.df  <- df.test.list[[i]]
             class.err <- run.Radial(local.df)
             print(sprintf("The classification error for the test set %d is %f", i, class.err))
@@ -92,7 +104,6 @@ run.Kernel.Compare <- function(df) {
 ################################################################################
 run.Radial <- function(df) {
 
-    print("Radial Kernel")
     print(sprintf("Instances: %d", nrow(df))) 
 
     cost <- 100
@@ -101,7 +112,8 @@ run.Radial <- function(df) {
     gam  <- 0.3
     print(sprintf("Gamma: %f", gam))
 
-    model   <- svm(party~., data=df[, -1], type="C-classification", cost=cost, kernel="radial", gamma=gam)
+    model   <- svm(party ~ ., data=df[, -1], type="C-classification", cost=cost, kernel="radial", gamma=gam)
+    print(model)
 
     class.err <- calc.ClassError(df$party, model)
     print(sprintf("Class Error: %f", class.err))
@@ -114,14 +126,14 @@ run.Radial <- function(df) {
 ################################################################################
 run.Linear <- function(df) {
 
-    print("Linear Kernel")
     print(sprintf("Instances: %d", nrow(df))) 
 
     cost <- 100
     print(sprintf("Cost: %d", cost))
 
-    model     <- svm(party~., data=df[,-1], type="C-classification", cost=cost, kernel="linear")
-#    print(model)
+    model     <- svm(party ~ ., data=df[,-1], type="C-classification", cost=cost, kernel="linear")
+    print(model)
+
     class.err <- calc.ClassError(df$party, model)
     print(sprintf("Class Error: %f", class.err))
     class.err
@@ -153,4 +165,19 @@ calc.ClassError <- function(dep, model) {
         stop("Cannot have a zero total for instances.")
 
     tot.err / tot    
+}
+
+
+################################################################################
+#
+################################################################################
+print.Section <- function(msg) {
+    
+    print("")
+    print("*********************************************")
+    print("")
+    print(msg)
+    print("")
+    print("*********************************************")
+    print("")
 }
