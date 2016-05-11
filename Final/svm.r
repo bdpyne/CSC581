@@ -118,7 +118,8 @@ run.Kernels <- function(df) {
 
         print.Section("BOOTSTRAP")
         err <- bootstrap(df.test.list[[best.idx]])
-        print(err)
+
+        print(sprintf("The upper bound is %d and the lower bound is %d", err[195], err[5]))
     }
 }
 
@@ -138,7 +139,7 @@ run.Radial <- function(df) {
     print(sprintf("Gamma: %f", gam))
 
     model   <- svm(party ~ ., data=df[, -1], type="C-classification", cost=cost, kernel="radial", gamma=gam)
-    print(model)
+#    print(model)
 
     class.err <- calc.ClassError(df$party, model)
     print(sprintf("Class Error: %f", class.err))
@@ -256,20 +257,17 @@ print.Section <- function(msg) {
 bootstrap  <- function(df) {
 
     # Collect the err's in here
-    err       <- data.frame()
-
-    no.rows   <- nrow(df)
-    tr1.size  <- floor(no.rows/2)
-    tr2.start <- tr1.size + 1
-
-    # Take a subset of the training set for hold out
-    tr1      <- df[1:tr1.size,]
-
-    hold.out <- df[tr2.start:no.rows,]
+    err    <- vector(,200)
 
     for (i in 1:200) {
-        bs  <- sample(x=tr1, size=no.rows, replace=TRUE)
-        err[i,1]  <- run.Radial(bs)
+        # Take a 10% sample of the input dataset
+        df.sample <- df[sample(nrow(df), 0.1 * nrow(df)), ,]
+
+        # Get back the errors - classification and training
+        temp <- run.Radial(df.sample)
+
+        # Add the training error to the data frame of them
+        err[i] <- temp[2]
     }
 
     order(err)
