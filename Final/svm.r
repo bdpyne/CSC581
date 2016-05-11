@@ -58,10 +58,12 @@ run.Kernels <- function(df) {
     df.test.list <- split(df.test, sample(1:2, df.test.size, replace=TRUE))
 
     print.Section("LINEAR")
-    linear.class.err <- run.Linear(df.sample)
+    linear.tmp.err    <- run.Linear(df.sample)
+    linear.class.err  <- linear.tmp.err[1]
 
     print.Section("RADIAL")
-    radial.class.err <- run.Radial(df.sample)
+    radial.tmp.err    <- run.Radial(df.sample)
+    radial.class.err  <- radial.tmp.err[1]
 
     if (linear.class.err < radial.class.err) {
         print.Section(sprintf("Linear wins with %f", linear.class.err))
@@ -76,8 +78,15 @@ run.Kernels <- function(df) {
         for (i in 1:length(df.test.list)) {
             print.Section(sprintf("TEST SET %d", i))
             local.df  <- df.test.list[[i]]
-            class.err <- run.Linear(local.df)
-            print(sprintf("The classification error for the test set %d is %f", i, class.err))
+            linear.err <- run.Linear(local.df)
+            train.err  <- radial.err[2]
+
+            print(sprintf("The training error for the test set %d is %f", i, train.err))
+
+            if (train.err < best.err) {
+                best.idx <- i
+                best.err <- train.err
+            }
         }
     } 
     else {
@@ -87,15 +96,29 @@ run.Kernels <- function(df) {
         # Now do the cross-validation
         ########################################################################
 
+        best.idx <- 0
+        best.err <- 1000.0
+
         print.Section("TRAINING SET")
         run.Radial(df.train)
 
         for (i in 1:length(df.test.list)) {
             print.Section(sprintf("TEST SET %d", i))
-            local.df  <- df.test.list[[i]]
-            class.err <- run.Radial(local.df)
-            print(sprintf("The classification error for the test set %d is %f", i, class.err))
+            local.df   <- df.test.list[[i]]
+            radial.err <- run.Radial(local.df)
+            train.err  <- radial.err[2]
+
+            print(sprintf("The training error for the test set %d is %f", i, train.err))
+
+            if (train.err < best.err) {
+                best.idx <- i
+                best.err <- train.err
+            }
         }
+
+        print.Section("BOOTSTRAP")
+        err <- bootstrap(df.test.list[[best.idx]])
+        print(err)
     }
 }
 
@@ -103,6 +126,8 @@ run.Kernels <- function(df) {
 #
 ################################################################################
 run.Radial <- function(df) {
+
+    err <- vector(,2)
 
     print(sprintf("Instances: %d", nrow(df))) 
 
@@ -117,7 +142,14 @@ run.Radial <- function(df) {
 
     class.err <- calc.ClassError(df$party, model)
     print(sprintf("Class Error: %f", class.err))
-    class.err
+
+    train.err <- calc.TrainError(df$party, model)
+    print(sprintf("Train Error: %f", train.err))
+
+    err[1] <- class.err
+    err[2] <- train.err
+
+    return(err)
 }
 
 
@@ -125,6 +157,8 @@ run.Radial <- function(df) {
 #
 ################################################################################
 run.Linear <- function(df) {
+
+    err <- vector(,2)
 
     print(sprintf("Instances: %d", nrow(df))) 
 
@@ -136,7 +170,14 @@ run.Linear <- function(df) {
 
     class.err <- calc.ClassError(df$party, model)
     print(sprintf("Class Error: %f", class.err))
-    class.err
+
+    train.err <- calc.TrainError(df$party, model)
+    print(sprintf("Train Error: %f", train.err))
+
+    err[1] <- class.err
+    err[2] <- train.err
+
+    return(err)
 }
 
 
@@ -164,7 +205,32 @@ calc.ClassError <- function(dep, model) {
     if (tot < 1)
         stop("Cannot have a zero total for instances.")
 
-    tot.err / tot    
+    return(tot.err / tot) 
+}
+
+
+################################################################################
+#
+################################################################################
+calc.TrainError <- function(dep, model) {
+
+    
+    predict <- fitted(model)
+    cm      <- table(dep, predict)
+    print(cm)
+    tot.err <- 0
+
+    for (i in 1:2) {
+        for (j in 1:2) {
+            if (i != j)
+                tot.err <- tot.err + cm[i,j]
+        }
+    }
+
+    if (tot < 1)
+        stop("Cannot have a zero total for instances.")
+
+    return(tot.err / length(predict) * 100)
 }
 
 
@@ -180,4 +246,33 @@ print.Section <- function(msg) {
     print("")
     print("*********************************************")
     print("")
+}
+
+
+
+################################################################################
+#
+################################################################################
+bootstrap  <- function(df) {
+
+    # Collect the err's in here
+    err       <- data.frame()
+
+    no.rows   <- nrow(df)
+    tr1.size  <- floor(no.rows/2)
+    tr2.start <- tr1.size + 1
+
+    # Take a subset of the training set for hold out
+    tr1      <- df[1:tr1.size,]
+
+    hold.out <- df[tr2.start:no.rows,]
+
+    for (i in 1:200) {
+        bs  <- sample(x=tr1, size=no.rows, replace=TRUE)
+        err[i,1]  <- run.Radial(bs)
+    }
+
+    order(err)
+
+    return(err)
 }

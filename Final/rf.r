@@ -8,9 +8,9 @@ run <- function() {
 
     voting.df <- read.csv("dataset.csv")
 
-#    run.CrudeAnalysis(voting.df)
-#    run.PredictPredictors(voting.df)
-#    run.Explore.RandomForest(voting.df)
+    run.CrudeAnalysis(voting.df)
+    run.PredictPredictors(voting.df)
+    run.Explore.RandomForest(voting.df)
     run.CV.RandomForest(voting.df)
 }
 
@@ -19,6 +19,9 @@ run <- function() {
 # Cross-validate the RandomForest algorithm. 
 ################################################################################
 run.CV.RandomForest <- function(df) {
+
+    best.idx <- 0
+    best.err <- 1000.0
 
     print("Running cross-validation on Random Forest")
 
@@ -39,7 +42,7 @@ run.CV.RandomForest <- function(df) {
     last.attrib <- no.cols - 1
 
     rf <- randomForest(df.train[, 2:last.attrib], df.train[, no.cols], prox=TRUE)
-    ce <- calc.ClassError.RandomForest(rf)
+    ce <- calc.ClassError(rf)
     print(sprintf("The classification error for the training set is %f", ce))
 
     ###########################################################################
@@ -55,9 +58,20 @@ run.CV.RandomForest <- function(df) {
     for (i in 1:length(df.test.list)) {
         local.df <- df.test.list[[i]]
         rf <- randomForest(local.df[, 2:last.attrib], local.df[, no.cols], prox=TRUE)
-        ce <- calc.ClassError.RandomForest(rf)
+        ce <- calc.ClassError(rf)
         print(sprintf("The classification error for the test set %d is %f", i, ce))
+        t3 <- calc.TrainError(tf)
+        print(sprintf("The training error for the test set %d is %f", i, te))
+
+        if (train.err < best.err) {
+            best.idx <- i
+            best.err <- train.err
+        }
     }
+
+    print.Section("BOOTSTRAP")
+    err <- bootstrap(df.test.list[[best.idx]])
+    print(err)
 }
 
 
@@ -76,7 +90,7 @@ run.Explore.RandomForest  <- function(df) {
 
     rf <- randomForest(df.sample[, 2:last.attrib], df.sample[, no.cols], prox=TRUE)
 
-    ce <- calc.ClassError.RandomForest(rf)
+    ce <- calc.ClassError(rf)
 
     print(sprintf("The classification error is %f", ce))
 }
@@ -120,7 +134,8 @@ run.CrudeAnalysis  <- function(df) {
     target     <- df[, ncol(df)]
     target.int <- ifelse(target == "democrat", 1, 0)
 
-    hist(target.int, border="blue", col="green", xlab="Parties", ylab="Members per Party", main=paste("Histogram of ", xname), labels=c("Republican","Democrat"), breaks=2)
+    # Comment out for now because the popup window gets annoying.
+#    hist(target.int, border="blue", col="green", xlab="Parties", ylab="Members per Party", main=paste("Histogram of ", xname), labels=c("Republican","Democrat"), breaks=2)
 }
 
 
@@ -128,7 +143,7 @@ run.CrudeAnalysis  <- function(df) {
 # Get the classification error as a decimal from a confusion matrix from a
 # Random Forest.
 ################################################################################
-calc.ClassError.RandomForest <- function(rf) {
+calc.ClassError <- function(rf) {
 
     cm      <- rf["confusion"]
 
@@ -154,5 +169,82 @@ calc.ClassError.RandomForest <- function(rf) {
     if (tot < 1)
         stop("Cannot have a zero total for instances.") 
 
-    tot.err / tot
+    return(tot.err / tot)
 }
+
+
+################################################################################
+#
+################################################################################
+calc.TrainError <- function(dep, model) {
+
+    predict <- predict(model) # something wrong here
+
+    cm      <- rf["confusion"]
+
+    print("Confusion Matrix")
+    print(cm$confusion)
+
+    tot.err <- 0
+
+
+    for (i in 1:2) {
+        for (j in 1:2) {
+            if (i != j) 
+                tot.err <- tot.err + cm$confusion[i,j]
+        }
+    }
+
+#    print(sprintf("Total error: %d", tot.err))
+#    print(sprintf("Total      : %d", tot))
+
+    if (tot < 1)
+        stop("Cannot have a zero total for instances.") 
+
+    return(tot.err / length(predict) * 100)
+}
+
+
+################################################################################
+#
+################################################################################
+print.Section <- function(msg) {
+    
+    print("")
+    print("*********************************************")
+    print("")
+    print(msg)
+    print("")
+    print("*********************************************")
+    print("")
+}
+
+
+
+################################################################################
+#
+################################################################################
+bootstrap  <- function(df) {
+
+    # Collect the err's in here
+    err       <- data.frame()
+
+    no.rows   <- nrow(df)
+    tr1.size  <- floor(no.rows/2)
+    tr2.start <- tr1.size + 1 
+
+    # Take a subset of the training set for hold out 
+    tr1      <- df[1:tr1.size,]
+
+    hold.out <- df[tr2.start:no.rows,]
+
+    for (i in 1:200) {
+        bs  <- sample(x=tr1, size=no.rows, replace=TRUE)
+        err[i,1]  <- run.Radial(bs)
+    }   
+
+    order(err)
+
+    return(err)
+}
+
