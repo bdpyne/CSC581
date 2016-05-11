@@ -60,8 +60,8 @@ run.CV.RandomForest <- function(df) {
         rf <- randomForest(local.df[, 2:last.attrib], local.df[, no.cols], prox=TRUE)
         ce <- calc.ClassError(rf)
         print(sprintf("The classification error for the test set %d is %f", i, ce))
-        t3 <- calc.TrainError(tf)
-        print(sprintf("The training error for the test set %d is %f", i, te))
+        train.err <- calc.TrainError(local.df, rf, local.df[,ncol(local.df)])
+        print(sprintf("The training error for the test set %d is %f", i, train.err))
 
         if (train.err < best.err) {
             best.idx <- i
@@ -71,7 +71,7 @@ run.CV.RandomForest <- function(df) {
 
     print.Section("BOOTSTRAP")
     err <- bootstrap(df.test.list[[best.idx]])
-    print(err)
+    print(sprintf("The upper bound is %d and the lower bound is %d", err[195], err[5]))
 }
 
 
@@ -176,14 +176,13 @@ calc.ClassError <- function(rf) {
 ################################################################################
 #
 ################################################################################
-calc.TrainError <- function(dep, model) {
+calc.TrainError <- function(df, model, dep) {
 
-    predict <- predict(model) # something wrong here
-
-    cm      <- rf["confusion"]
+    pred <- predict(model, df)
+    cm   <- table(dep, pred)
 
     print("Confusion Matrix")
-    print(cm$confusion)
+    print(cm)
 
     tot.err <- 0
 
@@ -191,7 +190,7 @@ calc.TrainError <- function(dep, model) {
     for (i in 1:2) {
         for (j in 1:2) {
             if (i != j) 
-                tot.err <- tot.err + cm$confusion[i,j]
+                tot.err <- tot.err + cm[i,j]
         }
     }
 
@@ -227,20 +226,19 @@ print.Section <- function(msg) {
 bootstrap  <- function(df) {
 
     # Collect the err's in here
-    err       <- data.frame()
-
-    no.rows   <- nrow(df)
-    tr1.size  <- floor(no.rows/2)
-    tr2.start <- tr1.size + 1 
-
-    # Take a subset of the training set for hold out 
-    tr1      <- df[1:tr1.size,]
-
-    hold.out <- df[tr2.start:no.rows,]
+    err       <- vector(,200)
 
     for (i in 1:200) {
-        bs  <- sample(x=tr1, size=no.rows, replace=TRUE)
-        err[i,1]  <- run.Radial(bs)
+        # Take a 10% sample of the input dataset
+        df.sample   <- df[sample(nrow(df), 0.1 * nrow(df)), ,]
+
+        no.cols     <- ncol(df.sample)
+        last.attrib <- no.cols - 1
+
+        # Get back the errors - classification and training
+        rf <- randomForest(df.sample[, 2:last.attrib], df.sample[,ncol(df.sample)], prox=TRUE)
+
+        err[i] <- calc.TrainError(df.sample, rf, df.sample[,ncol(df.sample)])
     }   
 
     order(err)
